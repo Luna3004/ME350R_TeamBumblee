@@ -1,6 +1,6 @@
 const int xPin = A0;     // X-axis
 const int yPin = A1;     // Y-axis 
-const int buttonPin = 5; // Joystick button
+const int buttonPin = 5; 
 
 // Left Motor 
 const int ENA = 9;  
@@ -31,11 +31,10 @@ void loop() {
   int xVal = analogRead(xPin);
   int yVal = analogRead(yPin);
 
-  // Center joystick ~512
+
   int xPos = xVal - 512;
   int yPos = yVal - 512;
 
-  // Dead ... motor doesn't move
   if (abs(xPos) < 100) xPos = 0;
   if (abs(yPos) < 100) yPos = 0;
 
@@ -50,12 +49,10 @@ void loop() {
     setMotor(ENB, IN3, IN4, -200);
   }
   else if (xPos > 0) {
-    // Turn Right: left motor forward, right motor stop
     setMotor(ENA, IN1, IN2, 200);
     setMotor(ENB, IN3, IN4, 0);
   }
   else if (xPos < 0) {
-    // Turn Left: right motor forward, left motor stop
     setMotor(ENA, IN1, IN2, 0);
     setMotor(ENB, IN3, IN4, 200);
   }

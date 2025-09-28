@@ -8,8 +8,13 @@ const int ENB = 10;
 const int IN3 = 12;
 const int IN4 = 11;
 
-float radius = 0; // cm
-const float wheelbase = 15.3; // cm
+// Joystick
+const int VRx = A0;
+const int VRy = A1;
+
+float radius = 0; 
+const float wheelbase = 15.3; 
+const int PWM_BASE = 150; //150   
 
 void setup() {
   pinMode(ENA, OUTPUT);
@@ -20,10 +25,13 @@ void setup() {
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
 
+  pinMode(VRx, INPUT);
+  pinMode(VRy, INPUT);
+
   Serial.begin(9600);
   stopMotors();
 
-  while (!Serial) { ; }
+  delay(500);
   Serial.println("Enter circle radius (cm):");
 }
 
@@ -36,9 +44,20 @@ void loop() {
     if (radius > 0) {
       Serial.print("Radius set to: ");
       Serial.println(radius);
-      CirclePath(radius);  
+      Serial.println("Push joystick UP to draw a circle.");
     }
   }
+
+  int yValue = analogRead(VRy);
+  if (yValue < 200 && radius > 0) {
+    Serial.println("Joystick UP detected -> Drawing circle");
+    CirclePath(radius);
+
+    while (analogRead(VRy) < 200) {
+      delay(50);
+    }
+    delay(500); 
+  } 
 }
 
 void stopMotors() {
@@ -48,28 +67,33 @@ void stopMotors() {
   analogWrite(ENB, 0); 
 }
 
-// Circle motion
 void CirclePath(float R) {
+  const float L = wheelbase;   // distance between wheels (15.3 cm)
+  const float MIN_PWM = 45;    // prevents TT motors from stalling
+  const float outerCorrection = 0.80; // slows down outer wheel slightly
 
-  int speed_PWM = 200;  
+  // Compute wheel ratios
+  float ratio_L = (R - L/2) / R; // inner wheel
+  float ratio_R = (R + L/2) / R; // outer wheel
 
-  float leftRatio  = (R - (wheelbase / 2)) / R;
-  float rightRatio = (R + (wheelbase / 2)) / R;
+  // Compute PWM values
+  int leftPWM  = constrain(PWM_BASE * ratio_L * outerCorrection, MIN_PWM, 255);
+  int rightPWM = constrain(PWM_BASE * ratio_R, MIN_PWM, 255);
 
-  int leftspeed  = constrain(speed_PWM * leftRatio, 0, 255);
-  int rightspeed = constrain(speed_PWM * rightRatio, 0, 255);
+  // Set motor directions
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);   // left forward
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);   // right forward
 
-  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
-  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+  // Apply PWM
+  analogWrite(ENA, leftPWM);
+  analogWrite(ENB, rightPWM);
 
-  analogWrite(ENA, leftspeed);
-  analogWrite(ENB, rightspeed);
-
-  float circumference = 2 * 3.1416 * R; // cm
-  float speed = 54.5; // cm/s
-  int duration = (circumference / speed) * 1000; // ms
+  // Compute time to complete circle
+  float circumference = 2 * 3.1416 * R;  // cm
+  float speed = 30;                       // cm/s (tune if needed)
+  int duration = (circumference / speed) * 1000;
 
   delay(duration);
-
   stopMotors();
 }
+
