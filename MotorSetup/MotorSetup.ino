@@ -19,20 +19,20 @@ void setup() {
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
 
-  Serial.println("L298N dual motor debug starting...");
+  Serial.println("L298N Driver Start.");
   stopMotors();
   delay(500);
 }
 
 void loop() {
  
-  Serial.println("Motor A Forward");
+  Serial.println("Left Motor Forward");
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   digitalWrite(ENA, HIGH); 
   delay(2000);
 
-  Serial.println("Motor A Backward");
+  Serial.println("Left Motor Backward");
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
   digitalWrite(ENA, HIGH);
@@ -41,13 +41,13 @@ void loop() {
   stopMotors();
   delay(1000);
 
-  Serial.println("Motor B Forward");
+  Serial.println("Right Motor Forward");
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
   digitalWrite(ENB, HIGH);
   delay(2000);
 
-  Serial.println("Motor B Backward");
+  Serial.println("Right Motor Backward");
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
   digitalWrite(ENB, HIGH);

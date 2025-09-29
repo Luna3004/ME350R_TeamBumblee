@@ -69,28 +69,28 @@ void stopMotors() {
 
 void CirclePath(float R) {
   const float L = wheelbase;   // distance between wheels (15.3 cm)
-  const float MIN_PWM = 45;    // prevents TT motors from stalling
-  const float outerCorrection = 0.80; // slows down outer wheel slightly
+  const float MIN_PWM = 45;    
+  const float outerCorrection = 0.80; 
 
-  // Compute wheel ratios
+
   float ratio_L = (R - L/2) / R; // inner wheel
   float ratio_R = (R + L/2) / R; // outer wheel
 
-  // Compute PWM values
+
   int leftPWM  = constrain(PWM_BASE * ratio_L * outerCorrection, MIN_PWM, 255);
   int rightPWM = constrain(PWM_BASE * ratio_R, MIN_PWM, 255);
 
-  // Set motor directions
+
   digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);   // left forward
   digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);   // right forward
 
-  // Apply PWM
+
   analogWrite(ENA, leftPWM);
   analogWrite(ENB, rightPWM);
 
-  // Compute time to complete circle
-  float circumference = 2 * 3.1416 * R;  // cm
-  float speed = 30;                       // cm/s (tune if needed)
+
+  float circumference = 3*(2 * 3.1416 * R);  // cm
+  float speed = 30;                       // cm/s 
   int duration = (circumference / speed) * 1000;
 
   delay(duration);
